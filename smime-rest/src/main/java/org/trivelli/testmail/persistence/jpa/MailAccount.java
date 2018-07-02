@@ -1,17 +1,26 @@
 package org.trivelli.testmail.persistence.jpa;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "mail_account", schema = "testmail")
 public class MailAccount {
 
     @Id
+    @Column(name="boxId")
     private Long boxId;
-    private String boxDescription;
+    @Column(name="description")
+    private String description;
+    @Column(name="emailAddress")
     private String emailAddress;
+    @Column(name="password")
     private String password;
+    @Column(name="server")
     private String server;
+    @Column(name="port")
     private Integer port;
     
     protected MailAccount() {}
@@ -20,8 +29,8 @@ public class MailAccount {
 		return boxId;
 	}
 
-	public String getBoxDescription() {
-		return boxDescription;
+	public String getDescription() {
+		return description;
 	}
 
 	public String getEmailAddress() {
@@ -44,8 +53,8 @@ public class MailAccount {
 		this.boxId = boxId;
 	}
 
-	public void setBoxDescription(String boxDescription) {
-		this.boxDescription = boxDescription;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public void setEmailAddress(String emailAddress) {
@@ -65,10 +74,67 @@ public class MailAccount {
 	}
 
 	@Override
-    public String toString() {
-        return String.format(
-                "Mail Account [BoxId=%d, boxDescription='%s', emailAddress='%s']",
-                boxId, boxDescription, emailAddress);
-    }
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((boxId == null) ? 0 : boxId.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());
+		result = prime * result + ((password == null) ? 0 : password.hashCode());
+		result = prime * result + ((port == null) ? 0 : port.hashCode());
+		result = prime * result + ((server == null) ? 0 : server.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MailAccount other = (MailAccount) obj;
+		if (boxId == null) {
+			if (other.boxId != null)
+				return false;
+		} else if (!boxId.equals(other.boxId))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (emailAddress == null) {
+			if (other.emailAddress != null)
+				return false;
+		} else if (!emailAddress.equals(other.emailAddress))
+			return false;
+		if (password == null) {
+			if (other.password != null)
+				return false;
+		} else if (!password.equals(other.password))
+			return false;
+		if (port == null) {
+			if (other.port != null)
+				return false;
+		} else if (!port.equals(other.port))
+			return false;
+		if (server == null) {
+			if (other.server != null)
+				return false;
+		} else if (!server.equals(other.server))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailAccount [boxId=").append(boxId).append(", description=").append(description)
+				.append(", emailAddress=").append(emailAddress).append(", password=").append(password)
+				.append(", server=").append(server).append(", port=").append(port).append("]");
+		return builder.toString();
+	}
 
 }

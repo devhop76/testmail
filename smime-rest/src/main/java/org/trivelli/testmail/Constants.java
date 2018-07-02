@@ -4,10 +4,6 @@ import javax.mail.Folder;
 
 import org.trivelli.testmail.imap.beans.ConnectionProfile;
 
-/**
- * @author Umut Gokbayrak
- *
- */
 public class Constants {
 
 	public static final String PEC = "PEC";

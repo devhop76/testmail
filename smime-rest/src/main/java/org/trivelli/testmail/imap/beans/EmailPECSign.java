@@ -5,7 +5,7 @@ import java.util.Date;
 
 import javax.mail.Address;
 
-public class EmailREMSign implements Serializable {
+public class EmailPECSign implements Serializable {
 
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class EmailREMSign implements Serializable {
     private String serialNumber;
     private String subjectDN;
 
-	public EmailREMSign() {
+	public EmailPECSign() {
 		super();
 	}
 

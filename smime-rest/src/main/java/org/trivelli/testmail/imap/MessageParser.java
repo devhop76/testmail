@@ -30,7 +30,7 @@ import org.trivelli.testmail.imap.beans.Email;
 import org.trivelli.testmail.imap.beans.EmailHeader;
 import org.trivelli.testmail.imap.beans.EmailPart;
 import org.trivelli.testmail.imap.beans.EmailPriority;
-import org.trivelli.testmail.imap.beans.EmailREMHeader;
+import org.trivelli.testmail.imap.beans.EmailPECHeader;
 import org.trivelli.testmail.imap.beans.EmailSensitivity;
 import org.trivelli.testmail.imap.exception.FatalException;
 
@@ -40,14 +40,14 @@ public class MessageParser {
     /**
      * 
      */
-    public final static int REM_PART_SMIME_SIGNATURE = 0;
-    public final static int REM_PART_XML_EXTENSIONS = 1;
-    public final static int REM_PART_EVIDENCE = 2;
-    public final static int REM_PART_ORIGINAL_MESSAGE = 3;
-    public final static int REM_PART_TXT_INTRODUCTION = 4;
-    public final static int REM_PART_HTM_INTRODUCTION = 5;
+    public final static int PEC_PART_SMIME_SIGNATURE = 0;
+    public final static int PEC_PART_XML_EXTENSIONS = 1;
+    public final static int PEC_PART_EVIDENCE = 2;
+    public final static int PEC_PART_ORIGINAL_MESSAGE = 3;
+    public final static int PEC_PART_TXT_INTRODUCTION = 4;
+    public final static int PEC_PART_HTM_INTRODUCTION = 5;
     public final static int DOWNLOADABLE = 6;
-    public final static int REM_PART_ORIGINAL_MESSAGE_TXT = 7;
+    public final static int PEC_PART_ORIGINAL_MESSAGE_TXT = 7;
     public final static int UNKNOWN_UNMANAGED = 10;
     
     public MessageParser() {
@@ -60,7 +60,7 @@ public class MessageParser {
 		MimeMessage cmsg = new MimeMessage((MimeMessage)serverMessage);
 		email.setOriginalMsg(cmsg);
         email.setBaseHeader(eHeader);
-		//Parsing of the REM message
+		//Parsing of the PEC message
         HashMap<String, Object> multiParts = inspectMessage(cmsg);
         HashMap<Integer, EmailPart> parts = (HashMap<Integer, EmailPart>)multiParts.get("message_parts");
         multiParts.remove("message_parts");
@@ -71,19 +71,19 @@ public class MessageParser {
 		boolean xmlEvidenceFound = false;		
 		boolean pkcs7SignFound = false;	
     	if(multiParts.size() > 2){
-			if (parts.containsKey(MessageParser.REM_PART_HTM_INTRODUCTION)){
+			if (parts.containsKey(MessageParser.PEC_PART_HTM_INTRODUCTION)){
 				htmlFound = true;
 			} 
-			if (parts.containsKey(MessageParser.REM_PART_TXT_INTRODUCTION)){
+			if (parts.containsKey(MessageParser.PEC_PART_TXT_INTRODUCTION)){
 				plainTextFound = true;
 			}
-			if (parts.containsKey(MessageParser.REM_PART_ORIGINAL_MESSAGE)){
+			if (parts.containsKey(MessageParser.PEC_PART_ORIGINAL_MESSAGE)){
 				originalMessageFound = true;			
 			}
-			if (parts.containsKey(MessageParser.REM_PART_EVIDENCE)){
+			if (parts.containsKey(MessageParser.PEC_PART_EVIDENCE)){
 				xmlEvidenceFound = true;			
 			} 
-			if (parts.containsKey(MessageParser.REM_PART_SMIME_SIGNATURE)){
+			if (parts.containsKey(MessageParser.PEC_PART_SMIME_SIGNATURE)){
 				pkcs7SignFound = true;			
 			}
 			if (parts.containsKey(MessageParser.UNKNOWN_UNMANAGED)){
@@ -91,9 +91,9 @@ public class MessageParser {
 			}				
         } else {
         	log.info("Found a standard (SENT) message...");
-			if (parts.containsKey(new Integer(MessageParser.REM_PART_HTM_INTRODUCTION)))
+			if (parts.containsKey(new Integer(MessageParser.PEC_PART_HTM_INTRODUCTION)))
 				htmlFound = true;
-			if (parts.containsKey(MessageParser.REM_PART_TXT_INTRODUCTION)){
+			if (parts.containsKey(MessageParser.PEC_PART_TXT_INTRODUCTION)){
 				plainTextFound = true;
 			}
         }
@@ -107,20 +107,20 @@ public class MessageParser {
         multiParts.remove("standard_message_atts");
         email.setAttachedParts(attachedParts);
 		if (htmlFound && plainTextFound && xmlEvidenceFound && pkcs7SignFound){
-            email.setREMMsg(true);
-            if(email.getBaseHeader().getRemHeader().getX_REM_Msg_Type().equals(EmailREMHeader.XREM_MSG_DISPATCH)){
-            	email.setMessageType(EmailREMHeader.REM_MSG_DISPATCH);
-            	log.info("Message labeled as REM MSG DISPATCH");
+            email.setPECMsg(true);
+            if(email.getBaseHeader().getRemHeader().getX_PEC_Msg_Type().equals(EmailPECHeader.XPEC_MSG_DISPATCH)){
+            	email.setMessageType(EmailPECHeader.PEC_MSG_DISPATCH);
+            	log.info("Message labeled as PEC MSG DISPATCH");
             }
-            if(email.getBaseHeader().getRemHeader().getX_REM_Msg_Type().equals(EmailREMHeader.XREM_MSG_MESSAGE)){
-            	email.setMessageType(EmailREMHeader.REM_MSG_MESSAGE);
-               	log.info("Message labeled as REM MSG MESSAGE");
+            if(email.getBaseHeader().getRemHeader().getX_PEC_Msg_Type().equals(EmailPECHeader.XPEC_MSG_MESSAGE)){
+            	email.setMessageType(EmailPECHeader.PEC_MSG_MESSAGE);
+               	log.info("Message labeled as PEC MSG MESSAGE");
             }
             if(email.getMessageType() == 0)
                 log.error("Message type non recognized");
         } else {
-        	email.setREMMsg(false);
-        	email.setMessageType(EmailREMHeader.REM_MSG_STANDARD);
+        	email.setPECMsg(false);
+        	email.setMessageType(EmailPECHeader.PEC_MSG_STANDARD);
         }
 		//store all headers
 		try {
@@ -142,8 +142,8 @@ public class MessageParser {
 
 	/**
 	 * Split the original function into two methods
-	 * This is specialized in detecting and isolating the multipart parts of the REM message
-	 * Returns true if the structure is REM compliant
+	 * This is specialized in detecting and isolating the multipart parts of the PEC message
+	 * Returns true if the structure is PEC compliant
 	 * @param p
 	 * @param multiparts
 	 * @return ArrayList of Multipart
@@ -280,10 +280,10 @@ public class MessageParser {
                     //By now I don't set the Data Source, I intend all the parts as "parts" and not as attachments
                     aPart.setDisposition(p.getDisposition());
                     aPart.setFilename(p.getFileName());
-                    aPart.setId(MessageParser.REM_PART_SMIME_SIGNATURE);
+                    aPart.setId(MessageParser.PEC_PART_SMIME_SIGNATURE);
                     aPart.setSize(p.getSize());
                     aPart.setSizeReadable(Utility.sizeToHumanReadable(p.getSize()));
-                    fetchedPart.put(MessageParser.REM_PART_SMIME_SIGNATURE, aPart);
+                    fetchedPart.put(MessageParser.PEC_PART_SMIME_SIGNATURE, aPart);
                     log.info("Added application/pkcs7-signature part to the partz");   
                 } catch (Exception e) {
                     log.error("Part is mimeType application/pkcs7-signature but exception occured", e);
@@ -311,20 +311,20 @@ public class MessageParser {
                     aPart.setDisposition(p.getDisposition());
                     aPart.setFilename(p.getFileName());
                     if(aPart.getFilename() != null){
-                        if(aPart.getFilename().equals("REMExtensions.xml"))
-                            aPart.setId(MessageParser.REM_PART_XML_EXTENSIONS);
+                        if(aPart.getFilename().equals("PECExtensions.xml"))
+                            aPart.setId(MessageParser.PEC_PART_XML_EXTENSIONS);
                         else
-                            aPart.setId(MessageParser.REM_PART_EVIDENCE);
+                            aPart.setId(MessageParser.PEC_PART_EVIDENCE);
                     } else {
                     	throw new FatalException("No filename specified");
                     }
                     aPart.setSize(p.getSize());
                     aPart.setSizeReadable(Utility.sizeToHumanReadable(p.getSize()));
-                    if(aPart.getId() == MessageParser.REM_PART_EVIDENCE){
-                    	fetchedPart.put(MessageParser.REM_PART_EVIDENCE, aPart);
+                    if(aPart.getId() == MessageParser.PEC_PART_EVIDENCE){
+                    	fetchedPart.put(MessageParser.PEC_PART_EVIDENCE, aPart);
                         log.info("Added application/xml evidence part to the partz");    
                     } else {
-                    	fetchedPart.put(MessageParser.REM_PART_XML_EXTENSIONS, aPart);
+                    	fetchedPart.put(MessageParser.PEC_PART_XML_EXTENSIONS, aPart);
                         log.info("Added application/xml extension part to the partz");                  	
                     }                  
                 } catch (Exception e) {
@@ -357,7 +357,7 @@ public class MessageParser {
 					aPart.setDisposition(p.getDisposition());
 					log.debug("GOT EML?"+p.getFileName());
 					aPart.setFilename(p.getFileName());
-					aPart.setId(MessageParser.REM_PART_ORIGINAL_MESSAGE);
+					aPart.setId(MessageParser.PEC_PART_ORIGINAL_MESSAGE);
 					aPart.setSize(p.getSize());
 					aPart.setSizeReadable(Utility.sizeToHumanReadable(p.getSize()));
 					aPart.setHasAttachment(false);
@@ -377,7 +377,7 @@ public class MessageParser {
     					e.printStackTrace();
     				}
 	
-					fetchedPart.put(MessageParser.REM_PART_ORIGINAL_MESSAGE, aPart);
+					fetchedPart.put(MessageParser.PEC_PART_ORIGINAL_MESSAGE, aPart);
 					log.info("Added message/rfc822 part to the partz");
 				} catch (Exception e) {
                     log.error("Part is mimeType message/rfc822 but exception occured", e);
@@ -386,12 +386,12 @@ public class MessageParser {
 				try {
 	                EmailPart aPart = new EmailPart();  
 	                aPart.setContentType("text/x-html; charset=iso-8859-1");
-	                aPart.setId(MessageParser.REM_PART_ORIGINAL_MESSAGE_TXT);
+	                aPart.setId(MessageParser.PEC_PART_ORIGINAL_MESSAGE_TXT);
 	                aPart.setSize(p.getSize());
 	                aPart.setSizeReadable(Utility.sizeToHumanReadable(p.getSize()));
 					MimeMessage message = ((MimeMessage)p.getContent());
 					String content = null;
-					//[AT] I think this is righteous just for REM mode, anyway now we support'em both 
+					//[AT] I think this is righteous just for PEC mode, anyway now we support'em both 
 					if (message.getContent() instanceof Multipart) {
 						MimeMultipart multi = (MimeMultipart)message.getContent();
 						int multiCount = multi.getCount();
@@ -404,7 +404,7 @@ public class MessageParser {
 					if(content == null)
 						log.warn("HURRY UP:::::NULL CONTENT");
 					aPart.setContent(content);
-                    fetchedPart.put(MessageParser.REM_PART_ORIGINAL_MESSAGE_TXT, aPart);
+                    fetchedPart.put(MessageParser.PEC_PART_ORIGINAL_MESSAGE_TXT, aPart);
                     log.info("Added original message text/html part to the partz");
                 } catch (Exception e) {
                     log.error("Part is mimeType original message text/html but exception occured", e);
@@ -419,7 +419,7 @@ public class MessageParser {
 	                aPart.setContentType(p.getContentType());
 	                //By now I don't set the Data Source, I intend all the parts as "parts" and not as attachments
 	                aPart.setDisposition(p.getDisposition());           
-	                aPart.setId(MessageParser.REM_PART_TXT_INTRODUCTION);
+	                aPart.setId(MessageParser.PEC_PART_TXT_INTRODUCTION);
 	                aPart.setSize(p.getSize());
 	                aPart.setSizeReadable(Utility.sizeToHumanReadable(p.getSize()));
                     Object pContent;
@@ -433,7 +433,7 @@ public class MessageParser {
                     } else {
                     	aPart.setContent("Illegal content");
                     }
-                    fetchedPart.put(MessageParser.REM_PART_TXT_INTRODUCTION, aPart);
+                    fetchedPart.put(MessageParser.PEC_PART_TXT_INTRODUCTION, aPart);
                     log.info("Added text/plain part to the partz");
                 } catch (Exception e) {
                     log.error("Part is mimeType text/plain but exception occured", e);
@@ -448,7 +448,7 @@ public class MessageParser {
 	                aPart.setContentType(p.getContentType());
 	                //By now I don't set the Data Source, I intend all the parts as "parts" and not as attachments
 	                aPart.setDisposition(p.getDisposition());
-	                aPart.setId(MessageParser.REM_PART_HTM_INTRODUCTION);
+	                aPart.setId(MessageParser.PEC_PART_HTM_INTRODUCTION);
 	                aPart.setSize(p.getSize());
 	                aPart.setSizeReadable(Utility.sizeToHumanReadable(p.getSize()));
                     Object pContent;
@@ -462,7 +462,7 @@ public class MessageParser {
                     } else {
                     	aPart.setContent("Illegal content");
                     }
-                    fetchedPart.put(MessageParser.REM_PART_HTM_INTRODUCTION, aPart);
+                    fetchedPart.put(MessageParser.PEC_PART_HTM_INTRODUCTION, aPart);
                     log.info("Added text/html part to the partz");
                 } catch (Exception e) {
                     log.error("Part is mimeType text/html but exception occured", e);
@@ -547,9 +547,9 @@ public class MessageParser {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static EmailREMHeader setREMHeaders(Message msg, int msgId) {
-    	log.info("setREMHeaders wt. messageId=["+msgId+"]");
-		EmailREMHeader header = new EmailREMHeader(msgId);
+	public static EmailPECHeader setPECHeaders(Message msg, int msgId) {
+    	log.info("setPECHeaders wt. messageId=["+msgId+"]");
+		EmailPECHeader header = new EmailPECHeader(msgId);
     	Enumeration<Header> msgHeaders = null;
 		try {
 			msgHeaders = (Enumeration<Header>) msg.getAllHeaders();
@@ -574,58 +574,58 @@ public class MessageParser {
 					header.setX_Read_Confirmation(value);				
 			    } else if(key.equals("x-rem-digestmethod")){
 			    	value = msgHeader.getValue().trim();
-					header.setX_REM_DigestMethod(value);
+					header.setX_PEC_DigestMethod(value);
 			    } else if(key.equals("x-rem-digestvalue")){
 			    	value = msgHeader.getValue().trim();
-					header.setX_REM_DigestValue(value);			
+					header.setX_PEC_DigestValue(value);			
 				} else if(key.equals("x-rem-event")){
 			    	value = msgHeader.getValue().trim();
-			    	//[AT]TODO:creare l'enumeration per i valori di X_REM_Event
-					if(value.equals(EmailREMHeader.XREM_EVENT_ACCEPTANCE)){
-						header.setX_REM_Event(EmailREMHeader.XREM_EVENT_ACCEPTANCE);
-					} else if(value.equals(EmailREMHeader.XREM_EVENT_NON_ACCEPTANCE)){
-						header.setX_REM_Event(EmailREMHeader.XREM_EVENT_NON_ACCEPTANCE);
-					} else if(value.equals(EmailREMHeader.XREM_EVENT_DELIVERY)){
-						header.setX_REM_Event(EmailREMHeader.XREM_EVENT_DELIVERY);
-					} else if(value.equals(EmailREMHeader.XREM_EVENT_NON_DELIVERY)){
-						header.setX_REM_Event(EmailREMHeader.XREM_EVENT_NON_DELIVERY);
+			    	//[AT]TODO:creare l'enumeration per i valori di X_PEC_Event
+					if(value.equals(EmailPECHeader.XPEC_EVENT_ACCEPTANCE)){
+						header.setX_PEC_Event(EmailPECHeader.XPEC_EVENT_ACCEPTANCE);
+					} else if(value.equals(EmailPECHeader.XPEC_EVENT_NON_ACCEPTANCE)){
+						header.setX_PEC_Event(EmailPECHeader.XPEC_EVENT_NON_ACCEPTANCE);
+					} else if(value.equals(EmailPECHeader.XPEC_EVENT_DELIVERY)){
+						header.setX_PEC_Event(EmailPECHeader.XPEC_EVENT_DELIVERY);
+					} else if(value.equals(EmailPECHeader.XPEC_EVENT_NON_DELIVERY)){
+						header.setX_PEC_Event(EmailPECHeader.XPEC_EVENT_NON_DELIVERY);
 					} else{
-						//throw new MessagingException("X-REM Event unknown");
+						//throw new MessagingException("X-PEC Event unknown");
 					}		    	
-					header.setX_REM_Event(value);
+					header.setX_PEC_Event(value);
 			    } else if(key.equals("x-rem-evidence-identifier")){
 			    	value = msgHeader.getValue().trim();
-					header.setX_REM_Evidence_Identifier(value);	    			
+					header.setX_PEC_Evidence_Identifier(value);	    			
 			    } else if(key.equals("x-rem-evidence-type")){
 			    	value = msgHeader.getValue().trim();
-					if(value.equals(EmailREMHeader.XREM_EVD_MESSAGE_DELIVERY)){
-						header.setX_REM_Evidence_Type(EmailREMHeader.XREM_EVD_MESSAGE_DELIVERY);
-					} else if(value.equals(EmailREMHeader.XREM_EVD_MESSAGE_ACCEPTANCE)){
-						header.setX_REM_Evidence_Type(EmailREMHeader.XREM_EVD_MESSAGE_ACCEPTANCE);
-					} else if(value.equals(EmailREMHeader.XREM_EVD_MESSAGE_READ)){
-						header.setX_REM_Evidence_Type(EmailREMHeader.XREM_EVD_MESSAGE_READ);					
+					if(value.equals(EmailPECHeader.XPEC_EVD_MESSAGE_DELIVERY)){
+						header.setX_PEC_Evidence_Type(EmailPECHeader.XPEC_EVD_MESSAGE_DELIVERY);
+					} else if(value.equals(EmailPECHeader.XPEC_EVD_MESSAGE_ACCEPTANCE)){
+						header.setX_PEC_Evidence_Type(EmailPECHeader.XPEC_EVD_MESSAGE_ACCEPTANCE);
+					} else if(value.equals(EmailPECHeader.XPEC_EVD_MESSAGE_READ)){
+						header.setX_PEC_Evidence_Type(EmailPECHeader.XPEC_EVD_MESSAGE_READ);					
 					} else{
-						//throw new MessagingException("X-REM Evidence Type unknown");
+						//throw new MessagingException("X-PEC Evidence Type unknown");
 					}	
 			    } else if(key.equals("x-rem-extension-code")){
 			    	value = msgHeader.getValue().trim();
-	                header.setX_REM_Extension_Code(value);
+	                header.setX_PEC_Extension_Code(value);
 			    } else if(key.equals("x-rem-message-identifier")){
 			    	value = msgHeader.getValue().trim();
-	                header.setX_REM_Message_Identifier(value);               
+	                header.setX_PEC_Message_Identifier(value);               
 				} else if(key.equals("x-rem-msg-type")){
-					//[AT]TODO:creare l'enumeration per i valori di X_REM_Message_Type
+					//[AT]TODO:creare l'enumeration per i valori di X_PEC_Message_Type
 					value = msgHeader.getValue().trim();
-					if(value.equals(EmailREMHeader.XREM_MSG_DISPATCH)){
-						header.setX_REM_Msg_Type(EmailREMHeader.XREM_MSG_DISPATCH);
-					} else if(value.equals(EmailREMHeader.XREM_MSG_MESSAGE)){
-						header.setX_REM_Msg_Type(EmailREMHeader.XREM_MSG_MESSAGE);
+					if(value.equals(EmailPECHeader.XPEC_MSG_DISPATCH)){
+						header.setX_PEC_Msg_Type(EmailPECHeader.XPEC_MSG_DISPATCH);
+					} else if(value.equals(EmailPECHeader.XPEC_MSG_MESSAGE)){
+						header.setX_PEC_Msg_Type(EmailPECHeader.XPEC_MSG_MESSAGE);
 					} else{
-						//throw new MessagingException("X_REM Message Type unknown");
+						//throw new MessagingException("X_PEC Message Type unknown");
 					}
 			    } else if(key.equals("x-rem-section-type")){
 			    	value = msgHeader.getValue().trim();
-	                header.setX_REM_Section_Type(value);			
+	                header.setX_PEC_Section_Type(value);			
 			    } else if(key.equals("x-sent-confirmation")){
 			    	value = msgHeader.getValue().trim();
 					header.setX_Sent_Confirmation(value);
@@ -653,13 +653,13 @@ public class MessageParser {
 			}
 		}
 		dump(header);
-		if(header.getX_REM_Msg_Type() == null)
+		if(header.getX_PEC_Msg_Type() == null)
 			return null;
 		else return header;
 	}
 
-	private static void dump(EmailREMHeader header) {
-        String arg0 = "EmailREMHeader=";
+	private static void dump(EmailPECHeader header) {
+        String arg0 = "EmailPECHeader=";
         Field[] fields = header.getClass().getDeclaredFields();
         for (Field sallyField : fields){
 		    for (Method method : header.getClass().getMethods())

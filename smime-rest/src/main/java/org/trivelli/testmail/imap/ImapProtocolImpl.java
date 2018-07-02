@@ -32,7 +32,7 @@ import org.trivelli.testmail.imap.beans.AuthProfile;
 import org.trivelli.testmail.imap.beans.ConnectionMetaHandler;
 import org.trivelli.testmail.imap.beans.ConnectionProfile;
 import org.trivelli.testmail.imap.beans.EmailHeader;
-import org.trivelli.testmail.imap.beans.EmailREMHeader;
+import org.trivelli.testmail.imap.beans.EmailPECHeader;
 import org.trivelli.testmail.imap.exception.ConnectionException;
 import org.trivelli.testmail.imap.exception.MailboxActionException;
 import org.trivelli.testmail.imap.exception.ProtocolNotAvailableException;
@@ -202,37 +202,6 @@ public class ImapProtocolImpl implements ImapProtocol {
 	}
 	
 	/**
-	 * Disconnects the previously opened data connection if
-	 * the connection is still alive.
-	 * @param handler
-	 */
-	public void disconnect() {
-		try {
-			HashMap<String, Folder> imapUserFolders = imapFolders.get(auth.getUsername());
-			Iterator<String> iter = imapUserFolders.keySet().iterator();
-			Folder tmp = null;
-			while (iter.hasNext()) {
-				try {
-					tmp = (Folder)imapUserFolders.get(iter.next());
-					closeFolder(tmp);
-					tmp = null;
-				} catch (Throwable e) {
-					log.debug("Unable to close folder:" + tmp);
-				}
-			}
-			imapFolders.put(auth.getUsername(), new HashMap<String, Folder>());
-			log.info("ImapProtocolImpl, cleaned imapFolders from user "+auth.getUsername());	
-		} catch (Throwable e1) {
-		}
-		
-		try {
-			handler.getStore().close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}	
-	
-	/**
 	 * 
 	 * @return
 	 * @throws MessagingException 
@@ -280,7 +249,7 @@ public class ImapProtocolImpl implements ImapProtocol {
 			if (!myFold.isOpen()) {
 				try {
 					log.debug("Folder :" + folder + " is closed. Opening.");
-					myFold.open(Constants.CONNECTION_READ_WRITE);
+					myFold.open(Constants.CONNECTION_READ_ONLY);
 					log.debug("Folder is open.");
 				} catch (Throwable e) {
 					log.debug("nevermind go on");
@@ -444,7 +413,7 @@ public class ImapProtocolImpl implements ImapProtocol {
 				EmailHeader header = new EmailHeader();
 				msg = msgs[i];
 				if (!msg.getFolder().isOpen()) 
-					msg.getFolder().open(Constants.CONNECTION_READ_WRITE);
+					msg.getFolder().open(Constants.CONNECTION_READ_ONLY);
 				
 				boolean deleted = false;
 				if (profile.getProtocol().startsWith(Constants.IMAP)) {
@@ -487,10 +456,10 @@ public class ImapProtocolImpl implements ImapProtocol {
 				//header.setMultipart((msg.isMimeType("multipart/*")) ? true : false);					
 				header.setMessageId(msg.getMessageNumber());
 				
-		        //[AT] Gestione degli headers specifici della REM
+		        //[AT] Gestione degli headers specifici della PEC
 		        int headerMessageId = header.getMessageId();					
 		        if(headerMessageId > -1){
-					EmailREMHeader remHeader = MessageParser.setREMHeaders(msg, headerMessageId);			
+					EmailPECHeader remHeader = MessageParser.setPECHeaders(msg, headerMessageId);			
 					header.setHasAttach(false);
 					if(remHeader != null){
 						header.setRemHeader(remHeader);						

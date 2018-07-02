@@ -15,7 +15,7 @@ public class MailServiceImpl implements MailService {
   private ImapProtocol imap;
 	
   public List<MessageDetail> fetchByDate(Long boxId, Date searchDate){
-	
+	return null;
   }
 
 }

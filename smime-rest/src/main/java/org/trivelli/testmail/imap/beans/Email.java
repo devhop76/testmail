@@ -25,7 +25,7 @@ public class Email implements Serializable {
 	private String bodyText;
     private Message originalMsg;
     private Message sentMsg;
-    private boolean isREMMsg;
+    private boolean isPECMsg;
     private int messageType;
 
 	public Message getOriginalMsg() {
@@ -179,12 +179,12 @@ public class Email implements Serializable {
 		msgId = messageId;
 	}
 
-	public boolean isREMMsg() {
-		return isREMMsg;
+	public boolean isPECMsg() {
+		return isPECMsg;
 	}
 
-	public void setREMMsg(boolean isREMMsg) {
-		this.isREMMsg = isREMMsg;
+	public void setPECMsg(boolean isPECMsg) {
+		this.isPECMsg = isPECMsg;
 	}
     
 	public int getMessageType() {

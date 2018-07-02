@@ -80,7 +80,6 @@ public class RESTController {
 					e.printStackTrace();
 				}
 	        }
-	    	//servizio per 
     	}
     	return out.getMessageIds();
     }

@@ -15,7 +15,6 @@ import org.trivelli.testmail.imap.exception.SystemException;
 
 public interface ImapProtocol {
 	public ConnectionMetaHandler connect() throws SystemException, ConnectionException, ServerDownException;
-	public void disconnect();
 	public List<Message> fetchAllHeadersAsMessages() throws SystemException, ConnectionException;
 	public List<EmailHeader> getHeadersSortedList(String sortCriteriaRaw, String sortDirectionRaw) throws ProtocolNotAvailableException;
 	public int getTotalMessageCount() throws Exception;

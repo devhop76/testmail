@@ -164,5 +164,15 @@ public class Mail {
 		return true;
 	}
 
-	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Mail [messageId=").append(messageId).append(", boxId=").append(boxId).append(", date=")
+				.append(date).append(", sender=").append(sender).append(", subject=").append(subject)
+				.append(", messageType=").append(messageType).append(", h_MessageID=").append(h_MessageID)
+				.append(", h_XRiferimentoMessageID=").append(h_XRiferimentoMessageID).append(", hash=").append(hash)
+				.append(", fsPath=").append(fsPath).append("]");
+		return builder.toString();
+	}
+
 }

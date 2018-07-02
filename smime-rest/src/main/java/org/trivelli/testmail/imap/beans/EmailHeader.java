@@ -26,7 +26,7 @@ public class EmailHeader implements Serializable {
 	private int priority;
 	private int sensitivity;
 	private String receiptFormatRequested;	
-	private EmailREMHeader remHeader;
+	private EmailPECHeader remHeader;
 	// human readable portions. These are shown on jsps.
 	private String sizeShown;
 	private String subjectShown;	
@@ -320,11 +320,11 @@ public class EmailHeader implements Serializable {
 		this.sensitivity = sensitivity;
 	}
 	
-	public EmailREMHeader getRemHeader() {
+	public EmailPECHeader getRemHeader() {
 		return remHeader;
 	}
 	
-	public void setRemHeader(EmailREMHeader remHeader) {
+	public void setRemHeader(EmailPECHeader remHeader) {
 		this.remHeader = remHeader;
 	}
 	/**
