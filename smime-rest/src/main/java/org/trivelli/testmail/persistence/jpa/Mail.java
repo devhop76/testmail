@@ -5,43 +5,45 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "mail", schema = "testmail")
+//@Table(name = "MAIL", schema = "TESTMAIL")
+@Table(name = "MAIL")
 public class Mail {
 
 	@Id
-	@Column(name="messageId")
+	@Column(name="MESSAGEID")
 	private Long messageId;
     @ManyToOne
-    @Column(name="boxId")
-    private Long boxId;
-    @Column(name="date")
+    @JoinColumn(name="BOXID")
+    private MailAccount mailbox;
+    @Column(name="DATE")
     private Date date;
-    @Column(name="sender")
+    @Column(name="SENDER")
     private String sender;
-    @Column(name="subject")
+    @Column(name="SUBJECT")
     private String subject;
-    @Column(name="messageType")
+    @Column(name="MESSAGETYPE")
     private MessageType messageType;
-    @Column(name="h_MessageID")
+    @Column(name="H_MESSAGEID")
     private String h_MessageID;
-    @Column(name="h_XRiferimentoMessageID")
+    @Column(name="H_XRIFERIMENTOMESSAGEID")
     private String h_XRiferimentoMessageID;
-    @Column(name="hash")
+    @Column(name="HASH")
     private String hash;
-    @Column(name="fsPath")
+    @Column(name="FSPATH")
     private String fsPath;   
     
     protected Mail() {}
 
-    public Mail(Long messageId, Long boxId, Date date, String sender, String subject, MessageType messageType,
+    public Mail(Long messageId, MailAccount mailbox, Date date, String sender, String subject, MessageType messageType,
 			String h_MessageID, String h_XRiferimentoMessageID) {
 		super();
 		this.messageId = messageId;
-		this.boxId = boxId;
+		this.mailbox = mailbox;
 		this.date = date;
 		this.sender = sender;
 		this.subject = subject;
@@ -50,12 +52,8 @@ public class Mail {
 		this.h_XRiferimentoMessageID = h_XRiferimentoMessageID;
 	}
 
-	public Long getBoxId() {
-		return boxId;
-	}
-
-	public void setBoxId(Long boxId) {
-		this.boxId = boxId;
+	public MailAccount getMailbox() {
+		return mailbox;
 	}
 
 	public Long getMessageId() {
@@ -134,7 +132,7 @@ public class Mail {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((boxId == null) ? 0 : boxId.hashCode());
+		result = prime * result + ((mailbox == null) ? 0 : mailbox.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result + ((fsPath == null) ? 0 : fsPath.hashCode());
 		result = prime * result + ((h_MessageID == null) ? 0 : h_MessageID.hashCode());
@@ -167,7 +165,7 @@ public class Mail {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Mail [messageId=").append(messageId).append(", boxId=").append(boxId).append(", date=")
+		builder.append("Mail [messageId=").append(messageId).append(", mailbox=").append(mailbox).append(", date=")
 				.append(date).append(", sender=").append(sender).append(", subject=").append(subject)
 				.append(", messageType=").append(messageType).append(", h_MessageID=").append(h_MessageID)
 				.append(", h_XRiferimentoMessageID=").append(h_XRiferimentoMessageID).append(", hash=").append(hash)

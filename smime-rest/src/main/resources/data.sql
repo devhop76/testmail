@@ -1,0 +1,1 @@
+insert into mail_account values (1000, 'TEST', 'RAMIRO.RAMINGO@ARUBA.IT', 'CHANGEIT', 'SMTPTEST.ARUBA.IT', 525);

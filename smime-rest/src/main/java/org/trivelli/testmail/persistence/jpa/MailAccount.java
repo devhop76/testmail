@@ -6,21 +6,22 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "mail_account", schema = "testmail")
+//@Table(name = "MAIL_ACCOUNT", schema = "TESTMAIL")
+@Table(name = "MAIL_ACCOUNT")
 public class MailAccount {
 
     @Id
-    @Column(name="boxId")
+    @Column(name="BOXID")
     private Long boxId;
-    @Column(name="description")
+    @Column(name="DESCRIPTION")
     private String description;
-    @Column(name="emailAddress")
+    @Column(name="EMAILADDRESS")
     private String emailAddress;
-    @Column(name="password")
+    @Column(name="PASSWORD")
     private String password;
-    @Column(name="server")
+    @Column(name="SERVER")
     private String server;
-    @Column(name="port")
+    @Column(name="PORT")
     private Integer port;
     
     protected MailAccount() {}
